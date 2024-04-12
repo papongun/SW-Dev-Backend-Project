@@ -68,7 +68,7 @@ exports.getHospital = async (req, res, next) => {
     try {
         const hospital = await Hospital.findById(req.params.id);
         if (!hospital) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
             });
         }
