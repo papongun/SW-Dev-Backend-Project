@@ -20,7 +20,7 @@ connectDB();
 
 // Router files
 const massageShops = require(`./routes/massageShops.js`);
-const appointments = require(`./routes/appointments.js`);
+const reservations = require(`./routes/reservations.js`);
 const auth = require(`./routes/auth`);
 
 // CORS
@@ -52,7 +52,7 @@ app.use(limiter);
 
 // Mount routers
 app.use(`/api/v1/massageShops`, massageShops);
-app.use(`/api/v1/appointments`, appointments);
+app.use(`/api/v1/reservations`, reservations);
 app.use(`/api/v1/auth`, auth);
 const PORT = process.env.PORT || 5000;
 const server = app.listen(

@@ -7,11 +7,11 @@ const {
     deleteMassageShop,
 } = require(`../controllers/massageShops`);
 const { protect, authorize } = require(`../middleware/auth`);
-const appointmentRouter = require("./appointments");
+const reservationRouter = require("./reservations");
 
 const router = express.Router();
 
-router.use("/:massageShopId/appointments/", appointmentRouter);
+router.use("/:massageShopId/reservations/", reservationRouter);
 
 router
     .route(`/`)

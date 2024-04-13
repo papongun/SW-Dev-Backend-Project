@@ -41,13 +41,13 @@ MassageShopSchema.pre(
     "deleteOne",
     { document: true, query: false },
     async function (next) {
-        await this.model(`Appointment`).deleteMany({ massageShop: this._id });
+        await this.model(`Reservation`).deleteMany({ massageShop: this._id });
         next();
     }
 );
 
-MassageShopSchema.virtual(`appointments`, {
-    ref: `Appointment`,
+MassageShopSchema.virtual(`reservations`, {
+    ref: `Reservation`,
     localField: `_id`,
     foreignField: `massageShop`,
     justOne: false,
