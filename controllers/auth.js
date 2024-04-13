@@ -1,18 +1,42 @@
 const User = require(`../models/User`);
+const Otp = require(`../models/otp`);
+const otpGenerator = require(`otp-generator`);
 
 exports.register = async (req, res, next) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, telephoneNumber, role } = req.body;
+
+        const otpCode = otpGenerator.generate(6, {
+            upperCaseAlphabets: false,
+            lowerCaseAlphabets: false,
+            specialChars: false,
+        });
+
+        const otpResults = await Otp.create({
+            email,
+            otp: otpCode,
+        });
+
+        if (!otpResults) {
+            return res.status(400).json({
+                success: false,
+                message: `Cannot create OTP code`,
+            });
+        }
+
         const user = await User.create({
             name,
             email,
             password,
+            telephoneNumber,
             role,
         });
-        sendTokenResponse(user, 200, res);
+
+        sendTokenResponse(user, 200, res, "register");
     } catch (error) {
         res.status(400).json({
             success: false,
+            message: `Cannot create user account`,
         });
     }
 };
@@ -43,7 +67,14 @@ exports.login = async (req, res, next) => {
             });
         }
 
-        sendTokenResponse(user, 200, res);
+        if (!user.isVerified) {
+            return res.status(400).json({
+                success: false,
+                message: `Please verify your email address`,
+            });
+        }
+
+        sendTokenResponse(user, 200, res, "login");
     } catch (error) {
         console.error(error);
         res.status(401).json({
@@ -73,7 +104,7 @@ exports.logout = async (req, res, next) => {
     });
 };
 
-const sendTokenResponse = (user, statusCode, res) => {
+const sendTokenResponse = (user, statusCode, res, action) => {
     const token = user.getSignedJwtToken();
 
     const options = {
@@ -86,11 +117,23 @@ const sendTokenResponse = (user, statusCode, res) => {
     if (process.env.NODE_ENV == "production") {
         options.secure = true;
     }
+
+    let responseMessage = "";
+    if (action === "register") {
+        responseMessage =
+            "User account has been created, dont't forget to verify your email address using OTP code sent to your email address.";
+    } else if (action === "login") {
+        responseMessage = "User has been logged in successfully.";
+    }
+
     res.status(statusCode).cookie("token", token, options).json({
         success: true,
         _id: user._id,
         name: user.name,
         email: user.email,
+        telephoneNumber: user.telephoneNumber,
+        role: user.role,
         token,
+        message: responseMessage,
     });
 };
