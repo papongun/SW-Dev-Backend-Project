@@ -19,7 +19,7 @@ dotenv.config({ path: `./config/config.env` });
 connectDB();
 
 // Router files
-const hospitals = require(`./routes/hospitals.js`);
+const massageShops = require(`./routes/massageShops.js`);
 const appointments = require(`./routes/appointments.js`);
 const auth = require(`./routes/auth`);
 
@@ -51,7 +51,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Mount routers
-app.use(`/api/v1/hospitals`, hospitals);
+app.use(`/api/v1/massageShops`, massageShops);
 app.use(`/api/v1/appointments`, appointments);
 app.use(`/api/v1/auth`, auth);
 const PORT = process.env.PORT || 5000;

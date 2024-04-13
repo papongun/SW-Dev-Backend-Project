@@ -1,5 +1,5 @@
 const Appointment = require("../models/Appointment");
-const Hospital = require("../models/Hospital");
+const Hospital = require("../models/MassageShop");
 
 exports.getAppointments = async (req, res, next) => {
     let query;
@@ -78,7 +78,7 @@ exports.addAppointment = async (req, res, next) => {
             });
         }
 
-        req.body.user = req.user.id; 
+        req.body.user = req.user.id;
         const existedAppointment = await Appointment.find({
             user: req.user.id,
         });

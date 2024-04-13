@@ -1,6 +1,6 @@
 const mongoose = require(`mongoose`);
 
-const HospitalSchema = new mongoose.Schema(
+const MassageShopSchema = new mongoose.Schema(
     {
         name: {
             type: String,
@@ -13,25 +13,22 @@ const HospitalSchema = new mongoose.Schema(
             type: String,
             require: [true, `Please add an address`],
         },
-        district: {
-            type: String,
-            required: [true, `Please add a district`],
-        },
-        province: {
-            type: String,
-            required: [true, `Please add a province`],
-        },
-        postalcode: {
-            type: String,
-            required: [true, `please add a postalcode`],
-            maxLength: [5, `Postal code cannot be more than 5 digits`],
-        },
         tel: {
             type: String,
         },
-        region: {
+        openTime: {
             type: String,
-            required: [true, `Please add a region`],
+            match: [
+                /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/,
+                `Please add a valid open time (HH:MM, 00:00 to 23:59)`,
+            ],
+        },
+        closeTime: {
+            type: String,
+            match: [
+                /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/,
+                `Please add a valid open time (HH:MM, 00:00 to 23:59)`,
+            ],
         },
     },
     {
@@ -40,22 +37,20 @@ const HospitalSchema = new mongoose.Schema(
     }
 );
 
-HospitalSchema.pre(
+MassageShopSchema.pre(
     "deleteOne",
     { document: true, query: false },
     async function (next) {
-        await this.model(`Appointment`).deleteMany({ hospital: this._id });
+        await this.model(`Appointment`).deleteMany({ massageShop: this._id });
         next();
     }
 );
 
-HospitalSchema.virtual(`appointments`, {
+MassageShopSchema.virtual(`appointments`, {
     ref: `Appointment`,
     localField: `_id`,
-    foreignField: `hospital`,
+    foreignField: `massageShop`,
     justOne: false,
 });
 
-
-
-module.exports = mongoose.model(`Hospital`, HospitalSchema);
+module.exports = mongoose.model(`MassageShop`, MassageShopSchema);

@@ -1,6 +1,6 @@
-const Hospital = require("../models/Hospital");
+const MassageShop = require("../models/MassageShop");
 
-exports.getHospitals = async (req, res, next) => {
+exports.getMassageShops = async (req, res, next) => {
     try {
         let query;
 
@@ -14,7 +14,7 @@ exports.getHospitals = async (req, res, next) => {
             (match) => `$${match}`
         );
 
-        query = Hospital.find(JSON.parse(queryStr)).populate(`appointments`);
+        query = MassageShop.find(JSON.parse(queryStr)).populate(`appointments`);
 
         if (req.query.select) {
             const fields = req.query.select.split(",").join(" ");
@@ -32,10 +32,10 @@ exports.getHospitals = async (req, res, next) => {
         const limit = parseInt(req.query.limit, 10) || 25;
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
-        const total = await Hospital.countDocuments();
+        const total = await MassageShop.countDocuments();
         query = query.skip(startIndex).limit(limit);
 
-        const hospitals = await query;
+        const massageShops = await query;
 
         const pagination = {};
         if (endIndex < total) {
@@ -52,9 +52,9 @@ exports.getHospitals = async (req, res, next) => {
         }
         res.status(200).json({
             success: true,
-            count: hospitals.length,
+            count: massageShops.length,
             pagination,
-            data: hospitals,
+            data: massageShops,
         });
     } catch {
         console.log(error);
@@ -64,10 +64,10 @@ exports.getHospitals = async (req, res, next) => {
     }
 };
 
-exports.getHospital = async (req, res, next) => {
+exports.getMassageShop = async (req, res, next) => {
     try {
-        const hospital = await Hospital.findById(req.params.id);
-        if (!hospital) {
+        const massageShop = await MassageShop.findById(req.params.id);
+        if (!massageShop) {
             return res.status(400).json({
                 success: false,
             });
@@ -75,7 +75,7 @@ exports.getHospital = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            data: hospital,
+            data: massageShop,
         });
     } catch {
         res.status(400).json({
@@ -84,12 +84,12 @@ exports.getHospital = async (req, res, next) => {
     }
 };
 
-exports.createHospital = async (req, res, next) => {
+exports.createMassageShop = async (req, res, next) => {
     try {
-        const hospital = await Hospital.create(req.body);
+        const massageShop = await MassageShop.create(req.body);
         res.status(201).json({
             success: true,
-            data: hospital,
+            data: massageShop,
         });
     } catch (error) {
         res.status(400).json({
@@ -98,9 +98,9 @@ exports.createHospital = async (req, res, next) => {
     }
 };
 
-exports.updateHospital = async (req, res, next) => {
+exports.updateMassageShop = async (req, res, next) => {
     try {
-        const hospital = await Hospital.findByIdAndUpdate(
+        const massageShop = await MassageShop.findByIdAndUpdate(
             req.params.id,
             req.body,
             {
@@ -109,7 +109,7 @@ exports.updateHospital = async (req, res, next) => {
             }
         );
 
-        if (!hospital) {
+        if (!massageShop) {
             res.status(400).json({
                 success: false,
             });
@@ -117,7 +117,7 @@ exports.updateHospital = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            data: hospital,
+            data: massageShop,
         });
     } catch {
         res.status(400).json({
@@ -126,18 +126,18 @@ exports.updateHospital = async (req, res, next) => {
     }
 };
 
-exports.deleteHospital = async (req, res, next) => {
+exports.deleteMassageShop = async (req, res, next) => {
     try {
-        const hospital = await Hospital.findById(req.params.id);
+        const massageShop = await MassageShop.findById(req.params.id);
 
-        if (!hospital) {
+        if (!massageShop) {
             return res.status(404).json({
                 success: false,
-                message: `Bootcamp not found with id of ${req.params.id}`,
+                message: `Massage shop not found with id of ${req.params.id}`,
             });
         }
 
-        await hospital.deleteOne();
+        await massageShop.deleteOne();
 
         res.status(200).json({
             success: true,
