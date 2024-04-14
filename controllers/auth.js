@@ -12,7 +12,15 @@ exports.register = async (req, res, next) => {
             role,
         });
 
-        sendTokenResponse(user, 200, res, "register");
+        res.status(200).json({
+            message:
+                "User account has been created, dont't forget to request OTP for verifing your account.",
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            telephoneNumber: user.telephoneNumber,
+            role: user.role,
+        });
     } catch (error) {
         res.status(400).json({
             success: false,
@@ -54,7 +62,7 @@ exports.login = async (req, res, next) => {
             });
         }
 
-        sendTokenResponse(user, 200, res, "login");
+        sendTokenResponse(user, 200, res);
     } catch (error) {
         console.error(error);
         res.status(401).json({
@@ -84,7 +92,7 @@ exports.logout = async (req, res, next) => {
     });
 };
 
-const sendTokenResponse = (user, statusCode, res, action) => {
+const sendTokenResponse = (user, statusCode, res) => {
     const token = user.getSignedJwtToken();
 
     const options = {
@@ -98,13 +106,7 @@ const sendTokenResponse = (user, statusCode, res, action) => {
         options.secure = true;
     }
 
-    let responseMessage = "";
-    if (action === "register") {
-        responseMessage =
-            "User account has been created, dont't forget to verify your email address using OTP code sent to your email address.";
-    } else if (action === "login") {
-        responseMessage = "User has been logged in successfully.";
-    }
+    const responseMessage = "User has been logged in successfully.";
 
     res.status(statusCode).cookie("token", token, options).json({
         success: true,
