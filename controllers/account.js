@@ -22,7 +22,7 @@ exports.requestOtp = async (req, res, next) => {
 
         const checkEmail = await Otp.findOne({ email });
         if (checkEmail) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: `You have requested an OTP code before, please check your email`,
             });
