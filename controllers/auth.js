@@ -1,28 +1,8 @@
 const User = require(`../models/User`);
-const Otp = require(`../models/otp`);
-const otpGenerator = require(`otp-generator`);
 
 exports.register = async (req, res, next) => {
     try {
         const { name, email, password, telephoneNumber, role } = req.body;
-
-        const otpCode = otpGenerator.generate(6, {
-            upperCaseAlphabets: false,
-            lowerCaseAlphabets: false,
-            specialChars: false,
-        });
-
-        const otpResults = await Otp.create({
-            email,
-            otp: otpCode,
-        });
-
-        if (!otpResults) {
-            return res.status(400).json({
-                success: false,
-                message: `Cannot create OTP code`,
-            });
-        }
 
         const user = await User.create({
             name,

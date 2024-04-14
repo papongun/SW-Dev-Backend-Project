@@ -11,16 +11,15 @@ const OtpSchema = new mongoose.Schema({
     otp: {
         type: String,
         required: [true, `Please add an OTP`],
-        unique: true,
     },
     createdAt: {
         type: Date,
         default: Date.now,
-        // expires: 600,
+        expires: 180,
     },
 });
 
-async function sendOtp(email, otp) {
+async function sendMail(email, otp) {
     // Send OTP to email
     console.log(`Sending OTP to ${email}`);
     try {
@@ -28,7 +27,8 @@ async function sendOtp(email, otp) {
             email,
             "Verification Email from Massage Reservation App",
             `<h1>Please confirm your OTP</h1>
-            <p>Here is your OTP code: ${otp}</p>`
+            <p>Here is your OTP code: ${otp}</p>
+            <p>The code will expire in 3 minutes. If the code doesn't work, try to request the code again.</p>`
         );
         console.log(mailResponse);
     } catch (e) {
@@ -37,9 +37,8 @@ async function sendOtp(email, otp) {
 }
 
 OtpSchema.pre(`save`, async function (next) {
-    console.log("New document saved to database");
     if (this.isNew) {
-        await sendOtp(this.email, this.otp);
+        await sendMail(this.email, this.otp);
     }
     next();
 });
