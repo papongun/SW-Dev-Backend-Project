@@ -47,6 +47,15 @@ UserSchema.pre(`save`, async function (next) {
     this.password = await bcrypt.hash(this.password, salt);
 });
 
+UserSchema.pre(
+    `deleteOne`,
+    { document: true, query: false },
+    async function (next) {
+        await this.model(`Reservation`).deleteMany({ user: this._id });
+        next();
+    }
+);
+
 UserSchema.methods.getSignedJwtToken = function () {
     return jwt.sign(
         {

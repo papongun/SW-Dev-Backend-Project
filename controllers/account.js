@@ -116,7 +116,8 @@ exports.deleteAccount = async (req, res, next) => {
         });
     }
 
-    await User.findByIdAndDelete(req.user.id);
+    await user.deleteOne();
+
     return res.status(200).json({
         success: true,
         message: `Account with the email ${email} has been deleted successfully.`,
