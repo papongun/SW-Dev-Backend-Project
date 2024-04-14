@@ -79,6 +79,8 @@ exports.verifyAccount = async (req, res, next) => {
             });
         }
 
+        await otpResults.deleteOne();
+
         return res.status(200).json({
             success: true,
             message: `Account verified successfully, now you can login with this account`,
@@ -102,20 +104,21 @@ exports.deleteAccount = async (req, res, next) => {
         });
     }
 
-    const checkOtp = await Otp.findOne({ email });
-    if (!checkOtp) {
+    const otpResults = await Otp.findOne({ email });
+    if (!otpResults) {
         return res.status(400).json({
             success: false,
             message: `Please request an OTP code first`,
         });
     }
-    if (checkOtp.otp !== otp) {
+    if (otpResults.otp !== otp) {
         return res.status(400).json({
             success: false,
             message: `Invalid OTP code`,
         });
     }
 
+    await otpResults.deleteOne();
     await user.deleteOne();
 
     return res.status(200).json({
