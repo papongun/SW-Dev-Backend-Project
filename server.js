@@ -6,8 +6,6 @@ const mongoSanitize = require(`express-mongo-sanitize`);
 const hpp = require(`hpp`);
 const { xss } = require(`express-xss-sanitizer`);
 const rateLimit = require(`express-rate-limit`);
-const swaggerJsDoc = require(`swagger-jsdoc`);
-const swaggerUI = require(`swagger-ui-express`);
 
 // Initialize express
 const app = express();
@@ -67,26 +65,6 @@ const server = app.listen(
         PORT
     )
 );
-
-// Swagger
-const swaggerOptions = {
-    swaggerDefinition: {
-        openapi: "3.0.0",
-        info: {
-            title: "Hospital API",
-            version: "1.0.0",
-            description: "A simple Express VacQ API",
-        },
-        servers: [
-            {
-                url: "http://localhost:5000/api/v1",
-            },
-        ],
-    },
-    apis: ["./routes/*.js"],
-};
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 
 // Cookie Parser
 app.use(cookieParser());
