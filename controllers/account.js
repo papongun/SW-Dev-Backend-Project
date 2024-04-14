@@ -40,6 +40,8 @@ exports.requestOtp = async (req, res, next) => {
             });
         }
 
+        otpResults.otp = undefined;
+
         return res.status(200).json({
             success: true,
             data: otpResults,
