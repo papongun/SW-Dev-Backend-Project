@@ -14,12 +14,6 @@ exports.requestOtp = async (req, res, next) => {
             });
         }
 
-        const otpCode = otpGenerator.generate(6, {
-            upperCaseAlphabets: false,
-            lowerCaseAlphabets: false,
-            specialChars: false,
-        });
-
         const checkEmail = await Otp.findOne({ email });
         if (checkEmail) {
             return res.status(400).json({
@@ -27,6 +21,12 @@ exports.requestOtp = async (req, res, next) => {
                 message: `You have requested an OTP code before, please check your email`,
             });
         }
+
+        const otpCode = otpGenerator.generate(6, {
+            upperCaseAlphabets: false,
+            lowerCaseAlphabets: false,
+            specialChars: false,
+        });
 
         const otpResults = await Otp.create({
             email,
