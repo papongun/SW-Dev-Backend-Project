@@ -28,7 +28,7 @@ modelUser --> UsersDatabase ++: find({_id:decoded.id})
 modelUser <-- UsersDatabase --:user
 middlewareAuth <-- modelUser --:req.user
 routerReservations <-- middlewareAuth --:next()
-routerReservations --> middlewareAuth ++:authorize("admin")
+routerReservations --> middlewareAuth ++:authorize("admin", "user")
 routerReservations <-- middlewareAuth --:next()
 
 routerReservations --> controllersReservations ++:getReservations()
