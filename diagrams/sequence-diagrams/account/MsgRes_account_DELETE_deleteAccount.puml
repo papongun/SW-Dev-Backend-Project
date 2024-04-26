@@ -1,0 +1,48 @@
+@startuml Delete Account (DELETE)
+
+header Massage Reservation Sequence Diagram
+footer Page %page% of %lastpage%
+title "Delete Account (DELETE)"
+
+participant "Client" as client
+participant "<<javaScript>>\n:server" as server
+participant "<<router>>\n:auth" as routerAccount
+participant "<<middleware>>\n:account" as middlewareAuth
+participant "<<service>>\n:jwt" as jwtAuth
+participant "<<controllers>>\n:account" as controllersAccount
+participant "<<model>>\n:User" as modelUser
+participant "<<model>>\n:Otp" as modelOtp
+database "<<MongoDB>>\n:otps" as OtpsDatabase
+database "<<MongoDB>>\n:users" as UsersDatabase
+
+client->server ++:req.post('/account/deleteAccount')
+server->routerAccount ++:app.use('/account',account)
+routerAccount -> middlewareAuth ++:protect()
+middlewareAuth -> jwtAuth ++:verify(token, secret)
+middlewareAuth <-- jwtAuth --:decoded
+middlewareAuth -> modelUser ++:findById(decoded.id)
+modelUser -> UsersDatabase ++: find({_id:decoded.id})
+modelUser <-- UsersDatabase --:user
+middlewareAuth <-- modelUser --:req.user
+routerAccount <-- middlewareAuth --:next()
+routerAccount -> controllersAccount ++:deleteAccount()
+controllersAccount -> modelUser ++:findById(req.user.id)
+modelUser -> UsersDatabase ++: find({_id:req.user.id})
+modelUser <-- UsersDatabase --:user
+controllersAccount <-- modelUser --:user
+controllersAccount -> modelOtp ++:findOne({email:user.email})
+modelOtp -> OtpsDatabase ++: find({email:user.email})
+modelOtp <-- OtpsDatabase --:otp
+controllersAccount <-- modelOtp --:otp
+controllersAccount -> modelOtp ++:deleteOne({email:user.email})
+modelOtp -> OtpsDatabase ++: deleteOne({email:user.email})
+modelOtp <-- OtpsDatabase --:{ }
+controllersAccount <-- modelOtp --:{ }
+controllersAccount -> modelUser ++:deleteOne({_id:user.id})
+modelUser -> UsersDatabase ++: deleteOne({_id:user.id})
+modelUser <-- UsersDatabase --:{ }
+controllersAccount <-- modelUser --:{ }
+controllersAccount -> client ++: response
+
+
+@enduml

@@ -1,0 +1,36 @@
+@startuml Request OTP (POST)
+
+header Massage Reservation Sequence Diagram
+footer Page %page% of %lastpage%
+title "Request OTP (POST)"
+
+participant "Client" as client
+participant "<<javaScript>>\n:server" as server
+participant "<<router>>\n:account" as routerAccount
+participant "<<controllers>>\n:account" as controllersAccount
+participant "<<service>>\n:otp-generator" as otpGenerator
+participant "<<model>>\n:User" as modelUser
+participant "<<model>>\n:Otp" as modelOtp
+database "<<MongoDB>>\n:otps" as OtpDatabase
+participant "<<utils>>\n:mailSender" as mailSender
+database "<<MongoDB>>\n:users" as UsersDatabase
+
+client->server ++:req.post('/account/requestOtp')
+server->routerAccount ++:app.use('/account',account))
+routerAccount->controllersAccount ++:requestOtp()
+controllersAccount->modelUser ++:findOne(req.body.email)
+modelUser->UsersDatabase ++:findOne({email:req.body.email})
+UsersDatabase-->modelUser --:user
+modelUser-->controllersAccount --:user
+controllersAccount->modelOtp ++:findOne(req.body.email)
+modelOtp->OtpDatabase ++:findOne({email:req.body.email})
+OtpDatabase-->modelOtp --:existedOtp
+modelOtp-->controllersAccount --:existedOtp
+controllersAccount->otpGenerator ++:generate()
+otpGenerator-->controllersAccount --:otp
+controllersAccount->modelOtp ++:create({otp:otp,email:req.body.email})
+modelOtp->OtpDatabase ++:OtpSchema
+OtpDatabase-->mailSender ++: sendMail(email,otp)
+client <- mailSender --:response
+
+@enduml

@@ -1,0 +1,34 @@
+@startuml My info (GET)
+
+header Massage Reservation Sequence Diagram
+footer Page %page% of %lastpage%
+title "My info (GET)"
+
+participant "Client" as client
+participant "<<javaScript>>\n:server" as server
+participant "<<router>>\n:auth" as routerAuth
+participant "<<middleware>>\n:auth" as middlewareAuth
+participant "<<service>>\n:jwt" as jwtAuth
+participant "<<controllers>>\n:auth" as controllersAuth
+participant "<<model>>\n:User" as modelUser
+database "<<MongoDB>>\n:users" as UsersDatabase
+
+client->server ++:req.post('/auth/me')
+server->routerAuth ++:app.use('/auth',auth)
+routerAuth -> middlewareAuth ++:protect()
+middlewareAuth -> jwtAuth ++:verify(token, secret)
+middlewareAuth <-- jwtAuth --:decoded
+middlewareAuth -> modelUser ++:findById(decoded.id)
+modelUser -> UsersDatabase ++: find({_id:decoded.id})
+modelUser <-- UsersDatabase --:user
+middlewareAuth <-- modelUser --:req.user
+routerAuth <-- middlewareAuth --:next()
+routerAuth -> controllersAuth ++:getMe()
+controllersAuth -> modelUser ++:findById(req.user.id)
+modelUser -> UsersDatabase ++: find({_id:req.user.id})
+modelUser <-- UsersDatabase --:user
+controllersAuth <-- modelUser --:user
+client <- controllersAuth --:response
+
+
+@enduml
