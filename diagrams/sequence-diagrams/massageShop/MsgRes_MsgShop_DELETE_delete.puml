@@ -28,15 +28,21 @@ middlewareAuth <-- modelUser --:req.user
 routerMassageShops <-- middlewareAuth --:next()
 
 routerMassageShops --> middlewareAuth ++:authorize("admin")
-routerMassageShops <-- middlewareAuth --:next()
 
-routerMassageShops --> controllersMassageShops ++:updateMassageShop()
-controllersMassageShops --> modelMassageShop ++:findById(id)
-modelMassageShop --> MassageShopsDatabase ++:findById(id)
-modelMassageShop <-- MassageShopsDatabase --:massageShop
-controllersMassageShops <-- modelMassageShop --:massageShop
-controllersMassageShops --> modelMassageShop ++:delete
-modelMassageShop --> MassageShopsDatabase ++:deleteOne(id)
-client <-- controllersMassageShops --:response
+activate middlewareAuth
+
+alt User is admin:
+    routerMassageShops <-- middlewareAuth --:next()
+    routerMassageShops --> controllersMassageShops ++:updateMassageShop()
+    controllersMassageShops --> modelMassageShop ++:findById(id)
+    modelMassageShop --> MassageShopsDatabase ++:findById(id)
+    modelMassageShop <-- MassageShopsDatabase --:massageShop
+    controllersMassageShops <-- modelMassageShop --:massageShop
+    controllersMassageShops --> modelMassageShop ++:delete
+    modelMassageShop --> MassageShopsDatabase ++:deleteOne(id)
+    client <-- controllersMassageShops --:response
+else User is not admin:
+    client <-- middlewareAuth --:response
+    end
 
 @enduml

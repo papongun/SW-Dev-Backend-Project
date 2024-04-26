@@ -28,13 +28,19 @@ middlewareAuth <-- modelUser --:req.user
 routerMassageShops <-- middlewareAuth --:next()
 
 routerMassageShops --> middlewareAuth ++:authorize("admin")
-routerMassageShops <-- middlewareAuth --:next()
 
-routerMassageShops --> controllersMassageShops ++:createMassageShop()
-controllersMassageShops --> modelMassageShop ++:create(massageShop)
-modelMassageShop --> MassageShopsDatabase ++:create(massageShop)
-modelMassageShop <-- MassageShopsDatabase --:massageShop
-controllersMassageShops <-- modelMassageShop --:massageShop
-client <-- controllersMassageShops --:response
+activate middlewareAuth
+
+alt User is admin:
+    routerMassageShops <-- middlewareAuth --:next()
+    routerMassageShops --> controllersMassageShops ++:createMassageShop()
+    controllersMassageShops --> modelMassageShop ++:create(massageShop)
+    modelMassageShop --> MassageShopsDatabase ++:create(massageShop)
+    modelMassageShop <-- MassageShopsDatabase --:massageShop
+    controllersMassageShops <-- modelMassageShop --:massageShop
+    client <-- controllersMassageShops --:response
+else User is not admin:
+    client <-- middlewareAuth --:response
+    end
 
 @enduml
