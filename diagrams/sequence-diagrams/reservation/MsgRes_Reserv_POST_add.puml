@@ -1,0 +1,55 @@
+@startuml Add One Reservations (POSE)
+
+header Massage Reservation Sequence Diagram
+footer Page %page% of %lastpage%
+title "Add One Reservations (GET)"
+
+participant "Client" as client
+participant "<<javaScript>>\n:server" as server
+participant "<<router>>\n:reservations" as routerReservations
+participant "<<middleware>>\n:auth" as middlewareAuth
+participant "<<service>>\n:jwt" as jwtAuth
+participant "<<controllers>>\n:reservations" as controllersReservations
+participant "<<model>>\n:MassageShop" as modelMassageShop
+participant "<<model>>\n:Reservation" as modelReservation
+participant "<<model>>\n:User" as modelUser
+database "<<MongoDB>>\n:massageShops" as MassageShopsDatabase
+database "<<MongoDB>>\n:reservations" as ReservationsDatabase
+database "<<MongoDB>>\n:users" as UsersDatabase
+
+client->server ++:req.get('/reservations/:id')
+server->routerReservations ++:app.use('/reservations/:id', reservations)
+
+routerReservations--> middlewareAuth ++:protect()
+middlewareAuth --> jwtAuth ++:verify(token, secret)
+middlewareAuth <-- jwtAuth --:decoded
+middlewareAuth --> modelUser ++:findById(decoded.id)
+modelUser --> UsersDatabase ++: find({_id:decoded.id})
+modelUser <-- UsersDatabase --:user
+middlewareAuth <-- modelUser --:req.user
+routerReservations <-- middlewareAuth --:next()
+routerReservations --> middlewareAuth ++:authorize("admin")
+routerReservations <-- middlewareAuth --:next()
+
+routerReservations --> controllersReservations ++:getReservations()
+
+controllersReservations --> modelMassageShop ++:findById(req.params.massageShopId)
+modelMassageShop --> MassageShopDatabase ++:findById(req.params.massageShopId))
+modelMassageShop <-- MassageShopDatabase --:MassageShop
+controllersReservations <-- modelMassageShop --:MassageShop
+
+controllersReservations --> modelReservation ++:find({user: req.user.id})
+modelReservation --> ReservationsDatabase ++:find({user: req.user.id})
+modelReservation <-- ReservationsDatabase --:Reservations
+controllersReservations <-- modelReservation --:Reservations
+
+alt User is not admin AND existing reservations >= 3
+    client <-- controllersReservations :response
+else Otherwise
+    controllersReservations --> modelReservation ++:create(req.body)
+    modelReservation --> ReservationsDatabase ++:create(req.body)
+    modelReservation <-- ReservationsDatabase --:Reservation
+    controllersReservations <-- modelReservation --:Reservation
+    client <-- controllersReservations --:response
+    end
+
