@@ -1,0 +1,42 @@
+@startuml Delete MassageShop (DELETE)
+
+header Massage Reservation Sequence Diagram
+footer Page %page% of %lastpage%
+title "Delete MassageShop (DELETE)"
+
+participant "Client" as client
+participant "<<javaScript>>\n:server" as server
+participant "<<router>>\n:massageShops" as routerMassageShops
+participant "<<middleware>>\n:auth" as middlewareAuth
+participant "<<service>>\n:jwt" as jwtAuth
+participant "<<controllers>>\n:massageShops" as controllersMassageShops
+participant "<<model>>\n:MassageShop" as modelMassageShop
+participant "<<model>>\n:User" as modelUser
+database "<<MongoDB>>\n:massageShops" as MassageShopsDatabase
+database "<<MongoDB>>\n:users" as UsersDatabase
+
+client->server ++:req.put('/massageShops')
+server->routerMassageShops ++:app.use('/massageShops',massageShops)
+
+routerMassageShops --> middlewareAuth ++:protect()
+middlewareAuth --> jwtAuth ++:verify(token, secret)
+middlewareAuth <-- jwtAuth --:decoded
+middlewareAuth --> modelUser ++:findById(decoded.id)
+modelUser --> UsersDatabase ++: find({_id:decoded.id})
+modelUser <-- UsersDatabase --:user
+middlewareAuth <-- modelUser --:req.user
+routerMassageShops <-- middlewareAuth --:next()
+
+routerMassageShops --> middlewareAuth ++:authorize("admin")
+routerMassageShops <-- middlewareAuth --:next()
+
+routerMassageShops --> controllersMassageShops ++:updateMassageShop()
+controllersMassageShops --> modelMassageShop ++:findById(id)
+modelMassageShop --> MassageShopsDatabase ++:findById(id)
+modelMassageShop <-- MassageShopsDatabase --:massageShop
+controllersMassageShops <-- modelMassageShop --:massageShop
+controllersMassageShops --> modelMassageShop ++:delete
+modelMassageShop --> MassageShopsDatabase ++:deleteOne(id)
+client <-- controllersMassageShops --:response
+
+@enduml
