@@ -1,0 +1,102 @@
+@startuml MassageShopService
+left to right direction
+package "MassageShop"{
+
+' App '
+    class "<<Application>>\nMassageShopService" as MassageShopService{}
+
+
+' Controller '
+    class "<<Resource>>\nMassageShop" as ResourceMassageShops {
+        <<GET>> +getMassageShops(): MassageShop[]
+        <<POST>> +createMassageShop(): MassageShop
+    }
+
+    class "<<Resource>>\nMassageShop" as ResourceMassageShop {
+        <<GET>> +getMassageShop(): MassageShop
+        <<PUT>> +updateMassageShop(): MassageShop
+        <<DELETE>> +deleteMassageShop(): void
+    }
+
+    class "<<Resource>>\nAuth" as ResourceAuth {
+        <<POST>> +register():
+        <<POST>> +login():
+        <<GET>> +getMe():
+        <<GET>> +logout():
+    }
+
+    class "<<Resource>>\nAccount" as ResourceAccount {
+        <<POST>> +requestOtp():
+        <<POST>> +verifyAccount():
+        <<DELETE>> +deleteAccount():
+    }
+
+    class "<<Resource>>\nReservation" as ResourceReservations {
+        <<GET>> +getReservations(): MassageShop[]
+        <<POST>> +addReservation(): MassageShop
+    }
+
+    class "<<Resource>>\nReservation" as ResourceReservation {
+        <<GET>> +getReservation(): MassageShop
+        <<PUT>> +updateReservation(): MassageShop
+        <<DELETE>> +deleteReservation(): void
+    }
+
+' Utils '
+    class "<<Utils>>\nmailSender" as UtilMailSender {
+        +mailSender(email, subject, body): void
+    }
+
+' Models '
+    class "<<Representation>>\nMassageShop" as RepresentationMassageShop {
+        -name
+        -address
+        -tel
+        -openTime
+        -closeTime
+    }
+
+    class "<<Representation>>\nUser" as RepresentationUser {
+        -name
+        -email
+        -password
+        -telephoneNumber
+        -role
+        -isVerified
+        -resetPasswordToken
+        -resetPasswordExpire
+    } 
+
+    class "<<Representation>>\nReservation" as RepresentationReservation {
+        -apptDate
+        -user
+        -massageShop
+    } 
+
+    class "<<Representation>>\nOtp" as RepresentationOtp {
+        -email
+        -otp
+    } 
+
+}
+
+MassageShopService ..> ResourceMassageShops:"/massageShops\n<<Path>>"
+ResourceMassageShops ..> ResourceMassageShop: "/{massageShopsId}\n<<Path>>"
+ResourceMassageShop ..> ResourceReservations: "/reservations\n<<Path>>"
+ResourceMassageShop ..> RepresentationMassageShop: "<<use>>"
+
+MassageShopService ..> ResourceReservations:"/reservations\n<<Path>>"
+ResourceReservations ..> ResourceReservation: "/{reservationId}\n<<Path>>"
+ResourceReservation ...> RepresentationMassageShop:"<<use>>"
+ResourceReservation ...> RepresentationReservation:"<<use>>"
+
+MassageShopService ..> ResourceAuth:"/auth\n<<Path>>"
+ResourceAuth ..> RepresentationUser:"<<use>>"
+
+MassageShopService ..> ResourceAccount:"/account\n<<Path>>"
+ResourceAccount ..> RepresentationUser:"<<use>>"
+ResourceAccount ..> RepresentationOtp:"<<use>>"
+RepresentationOtp ..> UtilMailSender:"<<use>>"
+
+
+@enduml
