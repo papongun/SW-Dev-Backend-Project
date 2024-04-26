@@ -30,6 +30,6 @@ routerReservations --> controllersReservations ++:getReservations()
 
 controllersReservations --> modelReservation ++:findById(req.params.id)
 modelReservation --> ReservationsDatabase ++:findById(req.params.id)
-modelReservation <-- ReservationsDatabase --:Reservations
-controllersReservations <-- modelReservation --:Reservations
+modelReservation <-- ReservationsDatabase --:Reservation
+controllersReservations <-- modelReservation --:Reservation
 client <-- controllersReservations :response
