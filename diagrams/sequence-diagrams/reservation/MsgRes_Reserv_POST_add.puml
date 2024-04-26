@@ -17,8 +17,8 @@ database "<<MongoDB>>\n:massageShops" as MassageShopsDatabase
 database "<<MongoDB>>\n:reservations" as ReservationsDatabase
 database "<<MongoDB>>\n:users" as UsersDatabase
 
-client->server ++:req.get('/reservations/:id')
-server->routerReservations ++:app.use('/reservations/:id', reservations)
+client->server ++:req.get('/reservations/')
+server->routerReservations ++:app.use('/reservations/', reservations)
 
 routerReservations--> middlewareAuth ++:protect()
 middlewareAuth --> jwtAuth ++:verify(token, secret)
