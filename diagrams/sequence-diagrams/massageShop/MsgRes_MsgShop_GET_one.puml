@@ -1,6 +1,7 @@
 @startuml Get One MassageShops (GET)
 
 title "Get one MassageShops (GET)"
+footer Page %page% of %lastpage%
 header Massage Reservation Sequence Diagram
 
 participant "Client" as client
