@@ -1,8 +1,8 @@
-@startuml Add One Reservations (POSE)
+@startuml Add One Reservations (POST)
 
 header Massage Reservation Sequence Diagram
 footer Page %page% of %lastpage%
-title "Add One Reservations (GET)"
+title "Add One Reservations (POST)"
 
 participant "Client" as client
 participant "<<javaScript>>\n:server" as server
