@@ -38,6 +38,8 @@ alt User is admin:
     controllersMassageShops <-- modelMassageShop --:massageShop
     controllersMassageShops --> modelMassageShop ++:delete
     modelMassageShop --> MassageShopsDatabase ++:deleteOne(id)
+    modelMassageShop <-- MassageShopsDatabase --:{ }
+    controllersMassageShops <-- modelMassageShop --:{ }
     client <-- controllersMassageShops --:response
 else User is not admin:
     client <-- middlewareAuth --:response
