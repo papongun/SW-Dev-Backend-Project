@@ -29,10 +29,9 @@ routerMassageShops <-- middlewareAuth --:next()
 
 routerMassageShops --> middlewareAuth ++:authorize("admin")
 
-activate middlewareAuth
 
 alt User is admin:
-    routerMassageShops <-- middlewareAuth --:next()
+    routerMassageShops <-- middlewareAuth :next()
     routerMassageShops --> controllersMassageShops ++:updateMassageShop()
     controllersMassageShops --> modelMassageShop ++:findByIdAndUpdate(id, massageShop, options)
     modelMassageShop --> MassageShopsDatabase ++:findByIdAndUpdate(id, massageShop, options)

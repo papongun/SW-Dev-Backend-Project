@@ -1,0 +1,53 @@
+@startuml Get All Reservations (GET)
+
+header Massage Reservation Sequence Diagram
+footer Page %page% of %lastpage%
+title "Get All Reservations (GET)"
+
+participant "Client" as client
+participant "<<javaScript>>\n:server" as server
+participant "<<router>>\n:reservations" as routerReservations
+participant "<<middleware>>\n:auth" as middlewareAuth
+participant "<<service>>\n:jwt" as jwtAuth
+participant "<<controllers>>\n:reservations" as controllersReservations
+participant "<<model>>\n:Reservation" as modelReservation
+participant "<<model>>\n:User" as modelUser
+database "<<MongoDB>>\n:reservations" as ReservationsDatabase
+database "<<MongoDB>>\n:users" as UsersDatabase
+
+client->server ++:req.get('/reservations')
+server->routerReservations ++:app.use('/reservations', reservations)
+
+routerReservations--> middlewareAuth ++:protect()
+middlewareAuth --> jwtAuth ++:verify(token, secret)
+middlewareAuth <-- jwtAuth --:decoded
+middlewareAuth --> modelUser ++:findById(decoded.id)
+modelUser --> UsersDatabase ++: find({_id:decoded.id})
+modelUser <-- UsersDatabase --:user
+middlewareAuth <-- modelUser --:req.user
+routerReservations <-- middlewareAuth --:next()
+routerReservations --> controllersReservations ++:getReservations()
+
+alt User is not admin
+    controllersReservations --> modelReservation ++:find({user: req.user.id})
+    modelReservation --> ReservationsDatabase ++:find({user: req.user.id})
+    modelReservation <-- ReservationsDatabase --:Reservations
+    controllersReservations <-- modelReservation --:Reservations
+    client <-- controllersReservations :response
+else User is admin
+    alt Case: get all of massage shop
+        controllersReservations --> modelReservation ++:find({massageShop: req.params.massageShopId})
+        modelReservation --> ReservationsDatabase ++:find({massageShop: req.params.massageShopId})
+        modelReservation <-- ReservationsDatabase --:Reservations
+        controllersReservations <-- modelReservation --:Reservations
+        client <-- controllersReservations :response
+    else Case: get all
+        controllersReservations --> modelReservation ++:find()
+        modelReservation --> ReservationsDatabase ++:find()
+        modelReservation <-- ReservationsDatabase --:Reservations
+        controllersReservations <-- modelReservation --:Reservations
+        client <-- controllersReservations --:response
+        end
+    end
+
+@enduml
