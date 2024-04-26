@@ -15,7 +15,7 @@ participant "<<model>>\n:User" as modelUser
 database "<<MongoDB>>\n:massageShops" as MassageShopsDatabase
 database "<<MongoDB>>\n:users" as UsersDatabase
 
-client->server ++:req.put('/massageShops')
+client->server ++:req.delete('/massageShops')
 server->routerMassageShops ++:app.use('/massageShops',massageShops)
 
 routerMassageShops --> middlewareAuth ++:protect()

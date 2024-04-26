@@ -17,7 +17,7 @@ database "<<MongoDB>>\n:massageShops" as MassageShopsDatabase
 database "<<MongoDB>>\n:reservations" as ReservationsDatabase
 database "<<MongoDB>>\n:users" as UsersDatabase
 
-client->server ++:req.get('/:massageShopId/reservations/')
+client->server ++:req.post('/:massageShopId/reservations/')
 server->routerReservations ++:app.use('/:massageShopId/reservations/', reservations)
 
 routerReservations--> middlewareAuth ++:protect()
