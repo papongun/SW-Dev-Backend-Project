@@ -1,0 +1,22 @@
+@startuml Get One MassageShops (GET)
+
+title "Get one MassageShops (GET)"
+header Massage Reservation Sequence Diagram
+
+participant "Client" as client
+participant "<<javaScript>>\n:server" as server
+participant "<<router>>\n:massageShops" as routerMassageShops
+participant "<<controllers>>\n:massageShops" as controllersMassageShops
+participant "<<model>>\n:MassageShop" as modelMassageShop
+database "<<MongoDB>>\n:massageShops" as MassageShopsDatabase
+
+client->server ++:req.get('/massageShops/:id')
+server->routerMassageShops ++:app.use('/massageShops/:id', massageShops)
+routerMassageShops -> controllersMassageShops ++:getMassageShop()
+controllersMassageShops->modelMassageShop ++:findOne(id)
+modelMassageShop ->MassageShopsDatabase ++: findOne(id)
+MassageShopsDatabase --> modelMassageShop --: massageShop
+controllersMassageShops <-- modelMassageShop --:massageShop
+controllersMassageShops->client --:response
+
+@enduml
